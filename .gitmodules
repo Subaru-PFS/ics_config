@@ -1,0 +1,15 @@
+[submodule "actorcore"]
+	path = actorcore
+	url = gitolite@pfs.ipmu.jp:actorcore
+[submodule "tron"]
+	path = tron
+	url = gitolite@pfs.ipmu.jp:tron
+[submodule "mcsActor"]
+	path = mcsActor
+	url = gitolite@pfs.ipmu.jp:mcsActor
+[submodule "pficsActor"]
+	path = pficsActor
+	url = gitolite@pfs.ipmu.jp:pficsActor
+[submodule "eups"]
+	path = eups
+	url = git@github.com:RobertLuptonTheGood/eups
