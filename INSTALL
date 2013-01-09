@@ -1,7 +1,7 @@
 This git module (ics_mhs_root) is intended to help distribute a
 complete set of all the git modules required to run the PFS ICS at the
 observatory. Tagged versions of this product will bring in tagged
-versions of the other modules.
+versions of all the other modules.
 
 Note that git submodules are in general _not_ a good mechanism for
 developing a group of independant modules: the book-keeping is
