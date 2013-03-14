@@ -7,13 +7,19 @@
 #
 ICS_ROOT=$HOME/mhs
 
+if test -d $ICS_ROOT; then 
+    echo "ICS_ROOT=$ICS_ROOT exists ... NOT overwriting it. It contains:" >&2
+    ls -l $ICS_ROOT >&2 
+    exit 1
+fi
+
 # 2. The root directory for development. The git repos will be cloned into this
 #    By default, uses $ICS_ROOT/devel
 ICS_DEVEL_ROOT=$ICS_ROOT/devel
 
 # 3. The root directory for eups products. 
 #    By default, uses $EUPS_PATH if already set, otherwisee $ICS_ROOT/products 
-export EUPS_PATH=${EUPS_PATH:-$(ICS_ROOT)/products}
+export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
 
 # 4. The EUPS version to fetch and install.
 #    If eups is already installed, bails out.
@@ -26,9 +32,9 @@ fi
 # 4. The ICS pieces we want to install, in order. 
 #    Note that ics_mhs_config is handled independantly, by this script.
 #
-ICS_DEVEL_PRODUCTS=ics_mhs_actorcore \
-    ics_mhs_tron \
-    ics_mhs_actorkeys 
+ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
+                    ics_mhs_tron 
+                    ics_mhs_actorkeys"
 
 #################################
 
@@ -38,6 +44,8 @@ cd $ICS_DEVEL_ROOT
 
 # Do we need to bootstrap a eups version?
 if test -n "$EUPS_VERSION"; then 
+    echo 
+    echo "######## installing eups...."
     git clone -b $EUPS_VERSION git@github.com:RobertLuptonTheGood/eups 
     (cd eups 
         ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_PATH/eups
@@ -48,13 +56,15 @@ if test -n "$EUPS_VERSION"; then
     # Leaving the top copy in place, but am not happy about it.
     (cd eups 
         ./configure --with-eups=$EUPS_PATH --prefix=$(eups path)/$(eups flavor)/eups/$EUPS_VERSION
-        make install declare)
+        make install
+        make declare
+    )
 fi
 
 # Deal with the ics_mhs_config product, which does not quite fit standard git product rules, since
 #   it gets locally configured for this system.
 #
-if test -s $(eups list -q -s ics_mhs_config); then
+if test -n "$(eups list -q -s ics_mhs_config)"; then
     echo "the ics_mhs_config product is already setup. We'll use that enviroment and not overwrite it." >&2
 else
     cd $ICS_DEVEL_ROOT          # to be safe.
@@ -75,6 +85,9 @@ fi
 # installer it may be the right choice.
 #
 for p in $ICS_DEVEL_PRODUCTS; do
+    echo
+    echo "######## installing a live (git) version of ${p}..."
+
     cd $ICS_DEVEL_ROOT          # to be safe.
     git clone gitolite@pfs.ipmu.jp:$p
     ( cd $p;
@@ -84,3 +97,15 @@ for p in $ICS_DEVEL_PRODUCTS; do
     echo "######## installed a live (git) version of ${p}:"
     setup -v $p
 done
+
+# Create any necessary subdirectories to run under $ICS_ROOT
+#
+mkdir -p ${ICS_MHS_DATA_ROOT}/mcs
+mkdir -p ${ICS_MHS_LOGS_ROOT}
+
+# Finish with a reminder
+echo
+echo "###### The bootstrap MHS parts are installed."
+echo "###### You _must_ now source $EUPS_DIR/bin/setups.sh before anything else will work"
+
+
