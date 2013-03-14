@@ -11,6 +11,8 @@ if test -d $ICS_ROOT; then
     echo "ICS_ROOT=$ICS_ROOT exists ... NOT overwriting it. It contains:" >&2
     ls -l $ICS_ROOT >&2 
     exit 1
+else
+    echo "####### Bootstrapping the ICS MHS and actors into $ICS_ROOT...." >&2
 fi
 
 # 2. The root directory for development. The git repos will be cloned into this
@@ -109,6 +111,12 @@ mkdir -p ${ICS_MHS_LOGS_ROOT}
 # Finish with a reminder
 echo
 echo "###### The bootstrap MHS parts are installed."
-echo "###### You _must_ now source $EUPS_DIR/bin/setups.sh before anything else will work"
+echo "###### You _must_ now source $EUPS_DIR/bin/setups.sh before anything else will work. That's:"
+echo
+echo "source $EUPS_DIR/bin/setups.sh"
+echo
+
+exit 0
+
 
 
