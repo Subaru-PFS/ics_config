@@ -1,0 +1,12 @@
+pathPrepend(PATH, ${PRODUCT_DIR}/bin)
+
+# Define the root for all data and log files. These can be links.
+# Other pieces can go under this root (products, development),
+#
+# You almost certainly want to change this! For operations this might
+#   be a mountpoint or the home directory for an operations account.
+#
+envSet(ICS_MHS_ROOT, "$HOME/mhs")
+
+envSet(ICS_MHS_DATA_ROOT, "${ICS_MHS_ROOT}/data")
+envSet(ICS_MHS_LOGS_ROOT, "${ICS_MHS_ROOT}/logs")
