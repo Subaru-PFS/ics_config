@@ -34,7 +34,10 @@ fi
 #
 ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
                     ics_mhs_tron 
-                    ics_mhs_actorkeys"
+                    ics_mhs_actorkeys
+                    ics_mhs_mcsActor
+                    ics_mhs_mpsActor
+                    ics_mhs_pficsActor"
 
 #################################
 
