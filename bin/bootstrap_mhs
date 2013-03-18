@@ -39,7 +39,9 @@ ICS_DEVEL_PRODUCTS="ics_mhs_actorcore
                     ics_mhs_actorkeys
                     ics_mhs_mcsActor
                     ics_mhs_mpsActor
-                    ics_mhs_pficsActor"
+                    ics_mhs_pficsActor
+                    ics_mhs_root"
+
 
 #################################
 
@@ -53,18 +55,31 @@ if test -n "$EUPS_VERSION"; then
     echo "######## installing eups...."
     git clone -b $EUPS_VERSION git@github.com:RobertLuptonTheGood/eups 
     (cd eups 
-        ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_PATH/eups
+        ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_PATH/eups --disable-docs
         make install)
     source $EUPS_PATH/eups/bin/setups.sh
 
     # Now that we have a eups to tell us things, reinstall to the proper path.
-    # Leaving the top copy in place, but am not happy about it.
+    eupsPrefix=$(eups path)/$(eups flavor)/eups/$EUPS_VERSION
     (cd eups 
-        ./configure --with-eups=$EUPS_PATH --prefix=$(eups path)/$(eups flavor)/eups/$EUPS_VERSION
+        ./configure --with-eups=$EUPS_PATH --prefix=$eupsPrefix
         make install
         make declare
+        eups declare -c eups $EUPS_VERSION
     )
+
+    # Shuffle links around
+    mv $EUPS_PATH/eups $EUPS_PATH/eups-bootstrap
+    ln -s $eupsPrefix $EUPS_PATH/eups
+
+    setup -v eups
 fi
+
+# Clean out any possible crud in the environment
+for p in ics_mhs_config $ICS_DEVEL_PRODUCTS; do
+    unsetup -f -q $p >& /dev/null
+done
+# export | egrep '( SETUP_)|(_DIR=)'
 
 # Deal with the ics_mhs_config product, which does not quite fit standard git product rules, since
 #   it gets locally configured for this system.
@@ -96,22 +111,21 @@ for p in $ICS_DEVEL_PRODUCTS; do
     cd $ICS_DEVEL_ROOT          # to be safe.
     git clone gitolite@pfs.ipmu.jp:$p
     ( cd $p;
-        eups declare -c -r $PWD $p git
+        eups declare -v -F -r $PWD $p git
+        eups declare -v -c $p git
     )
-    echo
-    echo "######## installed a live (git) version of ${p}:"
     setup -v $p
 done
 
 # Create any necessary subdirectories to run under $ICS_ROOT
 #
 mkdir -p ${ICS_MHS_DATA_ROOT}/mcs
-mkdir -p ${ICS_MHS_LOGS_ROOT}
+mkdir -p ${ICS_MHS_LOGS_ROOT}/tron
 
 # Finish with a reminder
 echo
 echo "###### The bootstrap MHS parts are installed."
-echo "###### You _must_ now source $EUPS_DIR/bin/setups.sh before anything else will work. That's:"
+echo "###### You _must_ now source $EUPS_PATH/eups/bin/setups.sh before anything else will work. That's:"
 echo
 echo "source $EUPS_DIR/bin/setups.sh"
 echo
