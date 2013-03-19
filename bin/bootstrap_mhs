@@ -120,7 +120,7 @@ done
 # Create any necessary subdirectories to run under $ICS_ROOT
 #
 mkdir -p ${ICS_MHS_DATA_ROOT}
-mkdir -p ${ICS_MHS_LOGS_ROOT}
+mkdir -p ${ICS_MHS_LOGS_ROOT}/tron
 
 # Finish with a reminder
 echo
