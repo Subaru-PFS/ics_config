@@ -26,14 +26,14 @@ export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
 # 4. The EUPS version to fetch and install.
 #    If eups is already installed, bails out.
 if $(/usr/bin/which -s eups); then
-    echo "eups is already installed -- NOT overwriting it." >&2
+    echo "eups is already installed -- NOT overwriting it. ICS products will be added to existing EUPS database." >&2
 else
     EUPS_VERSION=1.2.33
 fi
 
 # 4. The ICS pieces we want to install, in order. 
 #    Note that ics_mhs_config is handled independantly, by this script.
-#
+# 
 ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
                     ics_mhs_tron 
                     ics_mhs_actorkeys
@@ -42,7 +42,7 @@ ICS_DEVEL_PRODUCTS="ics_mhs_actorcore
                     ics_mhs_pficsActor
                     ics_mhs_root"
 
-
+ICS_BOOTSTRAP_VERSION=1.5
 #################################
 
 mkdir -p $ICS_ROOT
@@ -84,7 +84,7 @@ done
 # Deal with the ics_mhs_config product, which does not quite fit standard git product rules, since
 #   it gets locally configured for this system.
 #
-if test -n "$(eups list -q -s ics_mhs_config)"; then
+if test -n "$(eups list -q -s ics_mhs_config)" && test -d "$ICS_MHS_CONFIG_DIR"; then
     echo "the ics_mhs_config product is already setup. We'll use that enviroment and not overwrite it." >&2
 else
     cd $ICS_DEVEL_ROOT          # to be safe.
@@ -119,8 +119,8 @@ done
 
 # Create any necessary subdirectories to run under $ICS_ROOT
 #
-mkdir -p ${ICS_MHS_DATA_ROOT}/mcs
-mkdir -p ${ICS_MHS_LOGS_ROOT}/tron
+mkdir -p ${ICS_MHS_DATA_ROOT}
+mkdir -p ${ICS_MHS_LOGS_ROOT}
 
 # Finish with a reminder
 echo
