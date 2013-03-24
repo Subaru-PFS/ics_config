@@ -53,7 +53,7 @@ cd $ICS_DEVEL_ROOT
 if test -n "$EUPS_VERSION"; then 
     echo 
     echo "######## installing eups...."
-    git clone -b $EUPS_VERSION git@github.com:RobertLuptonTheGood/eups 
+    git clone -b $EUPS_VERSION https://github.com/RobertLuptonTheGood/eups.git eups 
     (cd eups 
         ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_PATH/eups --disable-docs
         make install)
