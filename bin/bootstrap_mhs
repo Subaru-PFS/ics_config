@@ -25,7 +25,7 @@ export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
 
 # 4. The EUPS version to fetch and install.
 #    If eups is already installed, bails out.
-if $(/usr/bin/which eups 2>/dev/null); then
+if $(/usr/bin/env which eups 2>/dev/null); then
     echo "eups is already installed -- NOT overwriting it. ICS products will be added to existing EUPS database." >&2
 else
     EUPS_VERSION=1.2.33
