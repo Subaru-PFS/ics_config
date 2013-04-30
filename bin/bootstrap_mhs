@@ -1,12 +1,42 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+
+usage()
+{
+    (
+       echo "usage: $0: [-r root-directory]\n"
+       echo "    If no root directory is specified, use $ICS_ROOT\n" 
+    ) >&2
+    exit 1
+}
+
+ICS_ROOT=$HOME/mhs
+while getopts :h?r: arg; do
+    case $arg in
+       r) ICS_ROOT="$OPTARG"
+           ;;
+       ?) echo "unknown argument: $OPTARG"
+          usage
+          ;;
+       h) usage
+          ;;
+    esac
+done
+
+# Some sanity tests.
+#  . make is required by eups, but not always supplied.
+requiredPrograms="make"
+for p in $requiredPrograms; do
+    if ! type $p >/dev/null 2>&1; then 
+       echo "FATAL: we need some version of $p"
+       exit 2
+    fi
+done
 
 # Configuration variables.
 # 1. The root directory for image/data files, logs, etc. 
 #    In practice, I'd make this the home directory for an operations/development account.
 #    This script will create several subdirectories, which could then be moved around/linked/etc.
 #
-ICS_ROOT=$HOME/mhs
-
 if test -d $ICS_ROOT; then 
     echo "ICS_ROOT=$ICS_ROOT exists ... NOT overwriting it. It contains:" >&2
     ls -l $ICS_ROOT >&2 
@@ -20,19 +50,20 @@ fi
 ICS_DEVEL_ROOT=$ICS_ROOT/devel
 
 # 3. The root directory for eups products. 
-#    By default, uses $EUPS_PATH if already set, otherwisee $ICS_ROOT/products 
+#    By default, uses $EUPS_PATH if already set, otherwise $ICS_ROOT/products 
 export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
 
 # 4. The EUPS version to fetch and install.
 #    If eups is already installed, bails out.
-if $(/usr/bin/env which eups 2>/dev/null); then
+if type eups >/dev/null 2>&1; then
     echo "eups is already installed -- NOT overwriting it. ICS products will be added to existing EUPS database." >&2
+    unset EUPS_VERSION
 else
     EUPS_VERSION=1.2.33
 fi
 
 # 4. The ICS pieces we want to install, in order. 
-#    Note that ics_mhs_config is handled independantly, by this script.
+#    Note that ics_mhs_config is handled independently, by this script.
 # 
 ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
                     ics_mhs_tron 
@@ -130,12 +161,16 @@ echo
 if test -n "$EUPS_VERSION"; then
     echo "###### You _must_ now source $EUPS_PATH/eups/bin/setups.sh before anything else will work. That's:"
     echo
-    echo "source $EUPS_DIR/bin/setups.sh"
+    echo ". $EUPS_DIR/bin/setups.sh"
     echo   or
     echo "source $EUPS_DIR/bin/setups.csh"
     echo   or
     echo "source $EUPS_DIR/bin/setups.zsh"
     echo
+    echo "You probably also want to put that into your login script."
+    echo 
+    echo "After setting up eups, 'eups list' will show all available products and versions, and "
+    echo "'setup -v ics_mhs_root' will setup all the above bootstrap MHS products."
 fi
 
 exit 0
