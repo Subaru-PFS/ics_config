@@ -3,17 +3,20 @@
 usage()
 {
     (
-       echo "usage: $0: [-r root-directory]\n"
+       echo "usage: $0: [-r root-directory] [-U]\n"
+       echo "    -U  - use existing EUPS product tree."
        echo "    If no root directory is specified, use $ICS_ROOT\n" 
     ) >&2
     exit 1
 }
 
 ICS_ROOT=$HOME/mhs
-while getopts :h?r: arg; do
+while getopts :hU?r: arg; do
     case $arg in
        r) ICS_ROOT="$OPTARG"
-           ;;
+           ;; 
+       U) addToEups=1
+           ;; 
        ?) echo "unknown argument: $OPTARG"
           usage
           ;;
@@ -54,11 +57,23 @@ ICS_DEVEL_ROOT=$ICS_ROOT/devel
 export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
 
 # 4. The EUPS version to fetch and install.
-#    If eups is already installed, bails out.
+#    If eups is already installed, do not install a new one, and
+#    only add our products if we were explicitely told to with -U
 if type eups >/dev/null 2>&1; then
-    echo "eups is already installed -- NOT overwriting it. ICS products will be added to existing EUPS database." >&2
+    echo "eups is already installed -- NOT overwriting it."
+    if test -n "$addToEups"; then
+        echo "  Adding ICS products to the existing EUPS database in $EUPS_PATH..." >&2
+    else
+        echo "  Pass in -U to add ICS products to the existing EUPS database in $EUPS_PATH." >&2
+        exit 1
+    fi
     unset EUPS_VERSION
 else
+    if test -n "$EUPS_PATH" || test -n "$EUPS_DIR"; then
+        echo "I cannot find eups, but a EUPS_PATH=$EUPS_PATH or an EUPS_DIR=$EUPS_DIR is defined."
+        echo "Not sure what is safe to do, so am stopping now."
+        exit 1
+    fi
     EUPS_VERSION=1.2.33
 fi
 
@@ -76,7 +91,7 @@ ICS_DEVEL_PRODUCTS="ics_mhs_actorcore
 ICS_BOOTSTRAP_VERSION=1.5
 #################################
 
-mkdir -p $ICS_ROOT
+mkdir -p $ICS_ROOT || (echo "could not create $ICS_ROOT directory!"; exit 1)
 mkdir -p $ICS_DEVEL_ROOT
 cd $ICS_DEVEL_ROOT
 
