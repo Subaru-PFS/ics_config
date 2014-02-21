@@ -127,7 +127,7 @@ if test -n "$EUPS_VERSION"; then
     ln -s $EUPS_VERSION $EUPS_DEFAULT_DIR
 
     # Act as if we are logging in.
-    source $EUPS_DEFAULT_DIR/bin/setups.sh
+    . $EUPS_DEFAULT_DIR/bin/setups.sh
 fi
 
 # Clean out any possible crud in the environment
