@@ -58,7 +58,7 @@ ICS_DEVEL_ROOT=$ICS_ROOT/devel
 
 # 3. The root directory for eups products. 
 #    By default, uses $EUPS_PATH if already set, otherwise $ICS_ROOT/products 
-export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
+export EUPS_PATH_TMP=${EUPS_PATH:-${ICS_ROOT}/products}
 
 # 4. The EUPS version to fetch and install.
 #    If eups is already installed, do not install a new one, and
@@ -66,9 +66,9 @@ export EUPS_PATH=${EUPS_PATH:-${ICS_ROOT}/products}
 if type eups >/dev/null 2>&1; then
     echo "eups is already installed -- NOT overwriting it."
     if test -n "$addToEups"; then
-        echo "  Adding ICS products to the existing EUPS database in $EUPS_PATH..." >&2
+        echo "  Adding ICS products to the existing EUPS database in $EUPS_PATH_TMP ..." >&2
     else
-        echo "  Pass in -U to add ICS products to the existing EUPS database in $EUPS_PATH." >&2
+        echo "  Pass in -U to add ICS products to the existing EUPS database in $EUPS_PATH_TMP." >&2
         exit 1
     fi
     unset EUPS_VERSION
@@ -90,6 +90,9 @@ else
         exit 1
     fi
 fi
+
+export EUPS_PATH=$EUPS_PATH_TMP
+
 
 # 4. The ICS pieces we want to install, in order. 
 #    Note that ics_mhs_config is handled independently, by this script.
