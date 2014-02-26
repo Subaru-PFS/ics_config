@@ -136,7 +136,7 @@ fi
 
 # Clean out any possible crud in the environment
 for p in ics_mhs_config $ICS_DEVEL_PRODUCTS; do
-    unsetup -f -q $p >& /dev/null
+    unsetup -f -q $p >/dev/null 2>/dev/null
 done
 # export | egrep '( SETUP_)|(_DIR=)'
 
