@@ -79,7 +79,7 @@ else
         echo "Not sure what is safe to do, so am stopping now."
         exit 1 
    fi
-    EUPS_VERSION=${EUPS_BOOTSTRAP_VERSION:-"1.2.33"}
+    EUPS_VERSION=${EUPS_BOOTSTRAP_VERSION:-"1.2.35"}
     EUPS_INSTALL_DIR=$EUPS_PATH_TMP/eups/$EUPS_VERSION
     EUPS_DEFAULT_DIR=$EUPS_PATH_TMP/eups/default
 
