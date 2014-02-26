@@ -126,8 +126,9 @@ if test -n "$EUPS_VERSION"; then
     # Make convenience link, for logins, etc.
     ln -s $EUPS_VERSION $EUPS_DEFAULT_DIR
 
-    # Act as if we are logging in.
-    . $EUPS_DEFAULT_DIR/bin/setups.sh
+    # Act as if we are logging in. setups.zsh is slightly more
+    # POSIX-compatible than setups.sh, so use that.
+    . $EUPS_DEFAULT_DIR/bin/setups.zsh
 fi
 
 # Clean out any possible crud in the environment
@@ -189,9 +190,9 @@ if test -n "$EUPS_VERSION"; then
     echo   or
     echo "source $EUPS_DIR/bin/setups.csh"
     echo   or
-    echo "source $EUPS_DIR/bin/setups.zsh"
+    echo ". $EUPS_DIR/bin/setups.zsh"
     echo
-    echo "You probably also want to put that into your login script."
+    echo "You probably also want to put that into your login script. Use setups.zsh if you use a strict POSIX shell. "
     echo 
     echo "After setting up eups, 'eups list' will show all available products and versions, and "
     echo "'setup -v ics_mhs_root' will setup all the above bootstrap MHS products."
