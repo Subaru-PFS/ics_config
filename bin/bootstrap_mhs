@@ -6,6 +6,9 @@ usage()
        echo "usage: $0: [-r root-directory] [-U] [-V TAG]\n"
        echo "    -U      - use existing EUPS product tree."
        echo "    -V TAG  - use specified git tag for our products."
+       echo "    -r root - create and use this root directory."
+       echo "    --with-python=PATH - use this python executable for our system."
+       echo
        echo "    If no root directory is specified, use $ICS_ROOT\n" 
     ) >&2
     exit 1
@@ -13,7 +16,8 @@ usage()
 
 ICS_ROOT=$HOME/mhs
 ICS_TAG=master
-while getopts :hU?r: arg; do
+EUPS_BOOTSTRAP_VERSION=1.4.0
+while getopts :hUV-:r: arg; do
     case $arg in
        r) ICS_ROOT="$OPTARG"
            ;; 
@@ -21,6 +25,14 @@ while getopts :hU?r: arg; do
            ;; 
        V) ICS_TAG="$OPTARG"
            ;; 
+       -) if test "with-python" = ${OPTARG:0:11}; then
+               EUPS_OPTIONS="--$OPTARG"
+               echo "EUPS_OPTIONS: $EUPS_OPTIONS"
+          else
+               echo "unknown -arg: $OPTARG"
+               exit 2
+          fi
+           ;;
        ?) echo "unknown argument: $OPTARG"
           usage
           ;;
@@ -95,15 +107,15 @@ export EUPS_PATH=$EUPS_PATH_TMP
 
 
 # 4. The ICS pieces we want to install, in order. 
+#    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
 ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
-                    ics_mhs_tron 
-                    ics_mhs_actorkeys
+                    ics_mhs_tron
                     ics_mhs_mcsActor
                     ics_mhs_mpsActor
                     ics_mhs_pficsActor
-                    ics_mhs_root"
+                    ics_mhs_actorkeys"
 
 #################################
 
@@ -118,7 +130,7 @@ if test -n "$EUPS_VERSION"; then
     git clone -b $EUPS_VERSION https://github.com/RobertLuptonTheGood/eups.git eups 
 
     (cd eups 
-        ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_INSTALL_DIR
+        ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_INSTALL_DIR --with-python=`which python`
         make install
     )
     if test $? -ne 0; then 
