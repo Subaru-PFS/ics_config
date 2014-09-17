@@ -15,7 +15,7 @@ usage()
 }
 
 ICS_ROOT=$HOME/mhs
-ICS_TAG=master
+ICS_TAG=tickets/3
 EUPS_BOOTSTRAP_VERSION=1.4.0
 while getopts :hUV-:r: arg; do
     case $arg in
