@@ -15,8 +15,11 @@ usage()
 }
 
 ICS_ROOT=$HOME/mhs
-ICS_TAG=tickets/3
+ICS_TAG=master
 EUPS_BOOTSTRAP_VERSION=1.4.0
+PYTHON_PATH=$(which python)
+EUPS_OPTIONS="--with-python=$PYTHON_PATH"
+
 while getopts :hUV-:r: arg; do
     case $arg in
        r) ICS_ROOT="$OPTARG"
@@ -26,7 +29,7 @@ while getopts :hUV-:r: arg; do
        V) ICS_TAG="$OPTARG"
            ;; 
        -) if test "with-python" = ${OPTARG:0:11}; then
-               EUPS_OPTIONS="--$OPTARG"
+              EUPS_OPTIONS="--$OPTARG"
                echo "EUPS_OPTIONS: $EUPS_OPTIONS"
           else
                echo "unknown -arg: $OPTARG"
@@ -112,9 +115,8 @@ export EUPS_PATH=$EUPS_PATH_TMP
 # 
 ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
                     ics_mhs_tron
-                    ics_mhs_mcsActor
-                    ics_mhs_mpsActor
-                    ics_mhs_pficsActor
+                    ics_mcsActor
+                    ics_enuActor
                     ics_mhs_actorkeys"
 
 #################################
