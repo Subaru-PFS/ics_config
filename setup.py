@@ -4,9 +4,10 @@
 To use:
 python setup.py install
 """
-import sdss3tools
+from ics_mhs_config import sdss3tools
 
 sdss3tools.setup(
     description = "Common code base for PFS MHS actor system",
-    name = "ics_mhs_config"
+    name = "ics_mhs_config",
+    debug=True,
 )
