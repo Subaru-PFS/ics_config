@@ -206,6 +206,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
       setup -r .
 
       if test "$prod" = "ics_mhs_config"; then
+          git update-index --assume-unchanged ups/ics_mhs_config.table
           sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
       fi
       
