@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+install_ups()
+{
+        # Copy the contents of ups/ to $PREFIX/ups and expand the table files
+        #
+        # It's necessary to call this if the native install method doesn't
+        # copy/expand ups/ content
+
+        [ ! -d ups ] && die "no 'ups' directory to copy to destination (are you running from package root?)";
+
+        mkdir -p "$PREFIX/ups"
+        cp -f -a ./ups/* "$PREFIX/ups"
+
+        # Expand the table file, if any
+        if [[ -f "$PREFIX/ups/$PRODUCT.table" ]]; then
+                eups expandtable -i -W '^(?!LOCAL:)' "$PREFIX/ups/$PRODUCT.table"
+                info "expanded table file '$PREFIX/ups/$PRODUCT.table'"
+        else
+                msg "no table file to expand (looked for '$PREFIX/ups/$PRODUCT.table')".
+        fi
+}
+
+eupspkg install -r -e -v 2
+install_ups
+eupspkg decl -r -e -v 2
