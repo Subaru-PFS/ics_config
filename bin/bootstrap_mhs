@@ -210,8 +210,8 @@ for p in $ICS_DEVEL_PRODUCTS; do
           sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
       fi
       
-      eupsinstall -v 3
-      eups declare -v -c $prod $vers
+      eupsinstall -v 2
+      eups declare -v -c $prod $(eups list $prod)
 
       # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
       ( cd $(eups list -d $prod $vers);
