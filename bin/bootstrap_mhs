@@ -16,9 +16,22 @@ usage()
 
 ICS_ROOT=$HOME/mhs
 ICS_TAG=master
-EUPS_BOOTSTRAP_VERSION=1.4.0
+EUPS_BOOTSTRAP_VERSION=1.5.4
+
+# New eups versions want to use /usr/bin/python, and insist that
+# anything else is explicitly requested. Bypass that logic.
 PYTHON_PATH=$(which python)
 EUPS_OPTIONS="--with-python=$PYTHON_PATH"
+
+#  The ICS pieces we want to install, in order. 
+#    These are the essential products to run tron and to build and run an actor.
+#    Note that ics_mhs_config is handled independently, by this script.
+# 
+ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
+                    ics_mhs_tron
+                    ics_mcsActor
+                    ics_enuActor
+                    ics_mhs_actorkeys"
 
 while getopts :hUV-:r: arg; do
     case $arg in
@@ -43,6 +56,9 @@ while getopts :hUV-:r: arg; do
           ;;
     esac
 done
+
+echo "Using python environment based on $PYTHON_PATH...."
+sleep 3
 
 # Some sanity tests.
 #  . make is required by eups, but not always supplied.
@@ -109,16 +125,6 @@ fi
 export EUPS_PATH=$EUPS_PATH_TMP
 
 
-# 4. The ICS pieces we want to install, in order. 
-#    These are the essential products to run tron and to build and run an actor.
-#    Note that ics_mhs_config is handled independently, by this script.
-# 
-ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
-                    ics_mhs_tron
-                    ics_mcsActor
-                    ics_enuActor
-                    ics_mhs_actorkeys"
-
 #################################
 
 mkdir -p $ICS_ROOT || (echo "could not create $ICS_ROOT directory!"; exit 1)
@@ -143,9 +149,8 @@ if test -n "$EUPS_VERSION"; then
     # Make convenience link, for logins, etc.
     ln -s $EUPS_VERSION $EUPS_DEFAULT_DIR
 
-    # Act as if we are logging in. setups.zsh is slightly more
-    # POSIX-compatible than setups.sh, so use that.
-    . $EUPS_DEFAULT_DIR/bin/setups.zsh
+    # Act as if we are logging in.
+    . $EUPS_DEFAULT_DIR/bin/setups.sh
 fi
 
 # Clean out any possible crud in the environment
