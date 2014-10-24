@@ -27,11 +27,11 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_mhs_actorcore 
-                    ics_mhs_tron
+ICS_DEVEL_PRODUCTS="ics_mhs_tron
+                    ics_mhs_actorcore
+                    ics_mhs_actorkeys
                     ics_mcsActor
-                    ics_enuActor
-                    ics_mhs_actorkeys"
+                    ics_enuActor"
 
 while getopts :hUV-:r: arg; do
     case $arg in
