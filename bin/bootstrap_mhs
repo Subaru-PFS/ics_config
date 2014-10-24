@@ -26,11 +26,43 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_mhs_tron
-                    ics_mhs_actorcore
-                    ics_mhs_actorkeys
-                    ics_mcsActor
-                    ics_enuActor"
+ICS_DEVEL_PRODUCTS="ics_mhs_config:master
+                    ics_mhs_tron:1.1
+                    ics_mhs_actorcore:master
+                    ics_mhs_actorkeys:master
+                    ics_mcsActor:1.1.1
+                    ics_enuActor:master"
+
+get_product()
+{
+    echo "${1%%:*}"
+}
+
+get_version()
+{
+    local v=${1##*:}
+    echo "${v:-master}"
+}
+
+get_products()
+{
+    local plist=""
+    for p in $ICS_DEVEL_PRODUCTS; do
+        plist="$plist $(get_product $p)"
+    done
+
+    echo $plist
+}
+
+get_versions()
+{
+    local vlist=""
+    for p in $ICS_DEVEL_PRODUCTS; do
+        vlist="$vlist $(get_version $p)"
+    done
+
+    echo $vlist
+}
 
 while getopts :hUV-:r: arg; do
     case $arg in
@@ -162,14 +194,32 @@ done
 # product tree, plus we leave and declare a live master version here.
 #
 for p in $ICS_DEVEL_PRODUCTS; do
+    prod=$(get_product $p)
+    vers=$(get_version $p)
     echo
-    echo "######## installing a live (git) version of ${p}..."
+    echo "######## installing version $vers of $prod..."
 
     cd $ICS_DEVEL_ROOT          # to be safe.
-    git clone -b $ICS_TAG gitolite@pfs.ipmu.jp:/$p
-    ( cd $p;
-        eups declare -v -F -r $PWD $p $ICS_TAG
-        eups declare -v -c $p $ICS_TAG
+    git clone gitolite@pfs.ipmu.jp:/$prod
+    ( cd $prod;
+      git checkout $vers
+      setup -r .
+
+      if test "$prod" = "ics_mhs_config"; then
+          sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
+      fi
+      
+      eupsinstall 
+      eups declare -v -c $prod $vers
+
+      # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
+      ( cd $(eups list -d $prod $vers);
+        ln -s lib/python python
+      )
+
+      # Declare the current live directory version.
+      git checkout master
+      eups declare -v -F -r . $prod git
     )
     setup -v $p
 done
