@@ -221,7 +221,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
       git checkout master
       eups declare -v -F -r . $prod git
     )
-    setup -v $p
+    setup -v $prod
 done
 
 # Create any necessary subdirectories to run under $ICS_ROOT
