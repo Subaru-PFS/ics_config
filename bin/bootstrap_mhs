@@ -182,7 +182,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
     echo "######## installing a live (git) version of ${p}..."
 
     cd $ICS_DEVEL_ROOT          # to be safe.
-    git clone -b $ICS_TAG gitolite@pfs.ipmu.jp:$p
+    git clone -b $ICS_TAG gitolite@pfs.ipmu.jp:/$p
     ( cd $p;
         eups declare -v -F -r $PWD $p $ICS_TAG
         eups declare -v -c $p $ICS_TAG
