@@ -15,7 +15,6 @@ usage()
 }
 
 ICS_ROOT=$HOME/mhs
-ICS_TAG=master
 EUPS_BOOTSTRAP_VERSION=1.5.4
 
 # New eups versions want to use /usr/bin/python, and insist that
@@ -154,33 +153,13 @@ if test -n "$EUPS_VERSION"; then
 fi
 
 # Clean out any possible crud in the environment
-for p in ics_mhs_config $ICS_DEVEL_PRODUCTS; do
+for p in ics_mhs_config $(get_products); do
     unsetup -f -q $p >/dev/null 2>/dev/null
 done
 # export | egrep '( SETUP_)|(_DIR=)'
 
-# Deal with the ics_mhs_config product, which does not quite fit standard git product rules, since
-#   it gets locally configured for this system.
-#
-if test -n "$(eups list -q -s ics_mhs_config)" && test -d "$ICS_MHS_CONFIG_DIR"; then
-    echo "the ics_mhs_config product is already setup. We'll use that enviroment and not overwrite it." >&2
-else
-    cd $ICS_DEVEL_ROOT          # to be safe.
-    git clone -b $ICS_TAG gitolite@pfs.ipmu.jp:ics_mhs_config
-    ( cd ics_mhs_config;
-        setup -r .
-        sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
-        eups declare -c -r $PWD ics_mhs_config local
-    )
-    setup ics_mhs_config
-    echo
-    echo "######## set ics_mhs_config variables to:"
-    cat $(eups list -m ics_mhs_config)
-fi
-
-# Do the rest of the products. Leave them in place. This is pretty
-# horrifying, but for a development bootstrap and until we choose an
-# installer it may be the right choice.
+# Install the core products. We install a full, perhaps tagged, version in the eups
+# product tree, plus we leave and declare a live master version here.
 #
 for p in $ICS_DEVEL_PRODUCTS; do
     echo
