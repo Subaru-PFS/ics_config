@@ -188,7 +188,6 @@ fi
 for p in ics_mhs_config $(get_products); do
     unsetup -f -q $p >/dev/null 2>/dev/null
 done
-# export | egrep '( SETUP_)|(_DIR=)'
 
 # Install the core products. We install a full, perhaps tagged, version in the eups
 # product tree, plus we leave and declare a live master version here.
@@ -199,7 +198,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
     echo
     echo "######## installing version $vers of $prod..."
 
-    cd $ICS_DEVEL_ROOT          # to be safe.
+    cd $ICS_DEVEL_ROOT
     git clone gitolite@pfs.ipmu.jp:/$prod
     ( cd $prod;
       git checkout $vers
@@ -211,10 +210,14 @@ for p in $ICS_DEVEL_PRODUCTS; do
       fi
       
       eupsinstall -v 2
+
+      # Get rid of additional versions. Only need to do this until
+      # we have access to more eups information.
+      unsetup $prod 
       eups declare -v -c $prod $(eups list $prod)
 
       # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
-      ( cd $(eups list -d $prod $vers);
+      ( cd $(eups list -c -d $prod);
         ln -s lib/python python
       )
 
