@@ -1,4 +1,5 @@
 pathPrepend(PATH, ${PRODUCT_DIR}/bin)
+pathPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
 
 # Define the root for all data and log files. These can be links.
 # Other pieces can go under this root (products, development),
