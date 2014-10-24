@@ -185,13 +185,13 @@ echo "###### The bootstrap MHS parts are installed."
 echo
 
 if test -n "$EUPS_VERSION"; then
-    echo "###### You _must_ now source $EUPS_PATH/eups/bin/setups.sh before anything else will work. That's:"
+    echo "###### You _must_ now source $EUPS_DEFAULT_PATH/eups/bin/setups.sh before anything else will work. That's:"
     echo
-    echo ". $EUPS_DIR/bin/setups.sh"
+    echo ". $EUPS_DEFAULT_DIR/bin/setups.sh"
     echo   or
-    echo "source $EUPS_DIR/bin/setups.csh"
+    echo "source $EUPS_DEFAULT_DIR/bin/setups.csh"
     echo   or
-    echo ". $EUPS_DIR/bin/setups.zsh"
+    echo ". $EUPS_DEFAULT_DIR/bin/setups.zsh"
     echo
     echo "You probably also want to put that into your login script. Use setups.zsh if you use a strict POSIX shell. "
     echo 
