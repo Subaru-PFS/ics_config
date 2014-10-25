@@ -27,7 +27,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
 ICS_DEVEL_PRODUCTS="ics_mhs_config:master
-                    ics_mhs_tron:1.1.1
+                    ics_mhs_tron:master
                     ics_mhs_actorcore:master
                     ics_mhs_actorkeys:master
                     ics_mcsActor:1.1.1
