@@ -28,7 +28,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 # 
 ICS_DEVEL_PRODUCTS="ics_mhs_config:master
                     ics_mhs_tron:1.1.2
-                    ics_mhs_actorcore:master
+                    ics_mhs_actorcore:1.3.1
                     ics_mhs_actorkeys:master
                     ics_mcsActor:1.1.1
                     ics_enuActor:master"
@@ -209,7 +209,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
           sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
       fi
       
-      eupsinstall -v 2
+      eupsinstall
 
       # Get rid of additional versions. Only need to do this until
       # we have access to more eups information.
