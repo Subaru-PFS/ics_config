@@ -27,7 +27,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
 ICS_DEVEL_PRODUCTS="ics_mhs_config:master
-                    ics_mhs_tron:master
+                    ics_mhs_tron:1.1.2
                     ics_mhs_actorcore:master
                     ics_mhs_actorkeys:master
                     ics_mcsActor:1.1.1
@@ -202,7 +202,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
     git clone gitolite@pfs.ipmu.jp:/$prod
     ( cd $prod;
       git checkout $vers
-      setup -r .
+      setup -v -r .
 
       if test "$prod" = "ics_mhs_config"; then
           git update-index --assume-unchanged ups/ics_mhs_config.table
