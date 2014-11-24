@@ -15,7 +15,7 @@ usage()
 }
 
 ICS_ROOT=$HOME/mhs
-EUPS_BOOTSTRAP_VERSION=1.5.4
+EUPS_BOOTSTRAP_VERSION=1.5.7
 
 # New eups versions want to use /usr/bin/python, and insist that
 # anything else is explicitly requested. Bypass that logic.
@@ -26,12 +26,11 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_mhs_config:1.2.1
+ICS_DEVEL_PRODUCTS="ics_mhs_config:1.2.2
                     ics_mhs_tron:1.1.2
                     ics_mhs_actorcore:1.3.1
                     ics_mhs_actorkeys:master
-                    ics_mcsActor:1.1.1
-                    ics_enuActor:master"
+                    ics_mcsActor:1.1.1"
 
 get_product()
 {
@@ -202,12 +201,13 @@ for p in $ICS_DEVEL_PRODUCTS; do
     git clone gitolite@pfs.ipmu.jp:/$prod
     ( cd $prod;
       git checkout $vers
-      setup -v -r .
 
+      # Bootstrap: 
       if test "$prod" = "ics_mhs_config"; then
-          git update-index --assume-unchanged ups/ics_mhs_config.table
+          # git update-index --assume-unchanged ups/ics_mhs_config.table
           sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
       fi
+      setup -v -r .
       
       eupsinstall
 
