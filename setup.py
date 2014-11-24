@@ -8,6 +8,6 @@ import sdss3tools
 
 sdss3tools.setup(
     description = "Common code base for PFS MHS actor system",
-    name = "ics_mhs_config",
+    name = "ics_config",
     debug=True,
 )
