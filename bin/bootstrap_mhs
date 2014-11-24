@@ -26,11 +26,11 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_mhs_config:1.2.2
-                    ics_mhs_tron:1.1.2
-                    ics_mhs_actorcore:1.3.1
-                    ics_mhs_actorkeys:master
-                    ics_mcsActor:1.1.1"
+ICS_DEVEL_PRODUCTS="ics_config:1.2.2
+                    tron_tron:1.1.2
+                    tron_actorcore:1.3.1
+                    ics_actorkeys:master
+                    ics_mhs_aActor:1.1.1"
 
 get_product()
 {
@@ -184,7 +184,7 @@ if test -n "$EUPS_VERSION"; then
 fi
 
 # Clean out any possible crud in the environment
-for p in ics_mhs_config $(get_products); do
+for p in ics_config $(get_products); do
     unsetup -f -q $p >/dev/null 2>/dev/null
 done
 
@@ -203,9 +203,9 @@ for p in $ICS_DEVEL_PRODUCTS; do
       git checkout $vers
 
       # Bootstrap: 
-      if test "$prod" = "ics_mhs_config"; then
-          # git update-index --assume-unchanged ups/ics_mhs_config.table
-          sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_mhs_config.table-in > ups/ics_mhs_config.table
+      if test "$prod" = "ics_config"; then
+          # git update-index --assume-unchanged ups/ics_config.table
+          sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_config.table-in > ups/ics_config.table
       fi
       setup -v -r .
       
