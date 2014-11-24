@@ -47,6 +47,11 @@ def setup(debug=False, copyUps=False, **kargs):
     if "packages" not in kargs:
         kargs["packages"] = find.findPackages("python")
 
+    if "install_platlib" not in kargs:
+        kargs['install_platlib'] = "$base/python"
+    if "install_purelib" not in kargs:
+        kargs['install_purelib'] = "$base/python"
+        
     stdDataDirs = ("bin", "doc", "etc", "examples", "lib")
     if copyUps:
         stdDataDirs += ("ups",)
