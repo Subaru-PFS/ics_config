@@ -26,7 +26,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_config:1.3.3
+ICS_DEVEL_PRODUCTS="ics_config:1.3.4
                     tron_tron:1.2.1
                     tron_actorcore:1.4.0
                     ics_actorkeys:master
@@ -202,6 +202,8 @@ for p in $ICS_DEVEL_PRODUCTS; do
     ( cd $prod;
       git checkout $vers
 
+      . setups.sh
+      
       # Bootstrap: 
       if test "$prod" = "ics_config"; then
           sed "s;%(ICS_ROOT);$ICS_ROOT;g" < ups/ics_config.table-in > ups/ics_config.table
