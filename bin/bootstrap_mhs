@@ -30,7 +30,8 @@ ICS_DEVEL_PRODUCTS="ics_config:1.3.4
                     tron_tron:1.2.1
                     tron_actorcore:1.4.0
                     ics_actorkeys:master
-                    ics_testaActor:1.2.1"
+                    ics_testaActor:1.2.1
+                    ics_enuActor:master"
 
 get_product()
 {
