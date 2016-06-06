@@ -17,6 +17,8 @@ usage()
 ICS_ROOT=$HOME/mhs
 EUPS_BOOTSTRAP_VERSION=1.5.7
 
+PFS_REPO_ROOT="https://github.com/Subaru-PFS"
+
 # New eups versions want to use /usr/bin/python, and insist that
 # anything else is explicitly requested. Bypass that logic.
 PYTHON_PATH=$(which python)
@@ -200,7 +202,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
     echo "######## installing version $vers of $prod..."
 
     cd $ICS_DEVEL_ROOT
-    git clone gitolite@pfs.ipmu.jp:/$prod
+    git clone $PFS_REPO_ROOT/$prod
     ( cd $prod;
       git checkout $vers
 
