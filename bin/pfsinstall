@@ -133,7 +133,7 @@ for p in $ICS_INSTALL_PRODUCTS; do
       # eups declare -v -c $prod $(eups list $prod)
 
       # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
-      ( cd $(eups list -c -d $prod);
+      ( cd $(eups list -d $prod $vers);
         ln -s lib/python python
       )
     )
