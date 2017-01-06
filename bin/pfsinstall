@@ -32,6 +32,23 @@ get_version()
     echo "${v:-master}"
 }
 
+get_git_version()
+{
+    local vers
+    local IS_TAG
+    local full_version
+
+    vers=$(git describe --exact-match 2>/dev/null)
+    IS_TAG=$?
+
+    if test $IS_TAG -ne 0; then
+        full_version=$(git describe)
+        vers=$full_version
+    fi
+
+    echo $vers
+}
+
 get_products()
 {
     local plist=""
@@ -65,10 +82,6 @@ done
 . $EUPS_DIR/bin/setups.sh
 
 ICS_INSTALL_PRODUCTS="$@"
-
-for p in $ICS_INSTALL_PRODUCTS; do
-    echo "installing: $p"
-done
 
 #################################
 
@@ -125,31 +138,27 @@ for p in $ICS_INSTALL_PRODUCTS; do
       # already installed
       setup -v -k -r .
 
-      TAG=$(git describe --exact-match 2>/dev/null)
-      IS_TAG=$?
-
-      if test $IS_TAG -ne 0; then
-          _vers=$vers
-          vers=$(git describe)
-          echo "   requested version $_vers is not a tag, installing with eups version $vers. I think."
+      eups_version=$(get_git_version $vers)
+      eupsinstall
+      
+      if test ${eups_version} != $vers; then
+          echo "   requested version $vers is not a tag, installed with eups version ${eups_version}. I think." >&2
       fi
       
-      eupsinstall
-
       # Get rid of additional versions. Only need to do this until
       # we have access to more eups information.
       # unsetup $prod 
       # eups declare -v -c $prod $(eups list $prod)
 
       # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
-      ( cd $(eups list -d $prod $vers);
+      ( cd $(eups list -d $prod ${eups_version});
         ln -s lib/python python
       )
     )
-    setup -v -k $prod $vers
+
+    # fetch the eups version.
+    eups_version=$(cd $prod; echo $(get_git_version))
+    setup -v -k $prod $eups_version
 done
 
 exit 0
-
-
-
