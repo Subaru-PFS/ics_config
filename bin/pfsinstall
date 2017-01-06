@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+usage()
+{
+    (
+        echo "usage: $0 product-list\n"
+        echo "   Install PFS git products into our eups tree."
+        echo
+        echo "    product-list is a space-delimited list of productName:productVersion pairs."
+        echo "        e.g. tron_actorcore:1.6.2 ics_actorkeys:master"
+        echo
+        echo "    products are installed in the order listed, and will ube built and"
+        echo "       installed against any previously listed product+version"
+        echo
+        echo "    The productVersions must be existing git tags or refs, and the installed "
+        echo "    eups versions will match."
+
+    ) >&2
+    exit 1
+}
+
+ICS_DEVEL_PRODUCTS=
+
+get_product()
+{
+    echo "${1%%:*}"
+}
+
+get_version()
+{
+    local v=${1##*:}
+    echo "${v:-master}"
+}
+
+get_products()
+{
+    local plist=""
+    for p in $ICS_INSTALL_PRODUCTS; do
+        plist="$plist $(get_product $p)"
+    done
+
+    echo $plist
+}
+
+get_versions()
+{
+    local vlist=""
+    for p in $ICS_INSTALL_PRODUCTS; do
+        vlist="$vlist $(get_version $p)"
+    done
+
+    echo $vlist
+}
+
+while getopts :h arg; do
+    case $arg in
+       ?) echo "unknown argument: $OPTARG"
+          usage
+          ;;
+       h) usage
+          ;;
+    esac
+done
+
+. $EUPS_DIR/bin/setups.sh
+
+ICS_INSTALL_PRODUCTS="$@"
+
+for p in $ICS_INSTALL_PRODUCTS; do
+    echo "installing: $p"
+done
+
+#################################
+
+ICS_BUILD_ROOT=/tmp/build-ics
+mkdir $ICS_BUILD_ROOT 2>/dev/null
+cd $ICS_BUILD_ROOT
+if test $(pwd) != $ICS_BUILD_ROOT; then
+    echo "Could not mkdir or cd into $ICS_BUILD_ROOT. Not safe, so exiting." >&2
+    exit 1
+fi
+
+# Clean out any possible crud in the environment
+for p in $(get_products); do
+    if test $p = ics_config; then
+        ICS_MHS_ROOT_SAVED=$ICS_MHS_ROOT
+    fi
+    unsetup -f -q $p >/dev/null 2>/dev/null
+    if test $p = ics_config; then
+        ICS_MHS_ROOT=$ICS_MHS_ROOT_SAVED
+    fi
+done
+
+# Install the requested products. We install a full, perhaps tagged, version in the eups
+# product tree, 
+#
+for p in $ICS_INSTALL_PRODUCTS; do
+    prod=$(get_product $p)
+    vers=$(get_version $p)
+    echo
+    echo "######## installing version $vers of $prod..."
+
+    cd $ICS_BUILD_ROOT
+    if test -d ${prod}; then
+        REMOVE=$ICS_BUILD_ROOT/${prod}
+        echo REMOVING $REMOVE
+        rm -rf $REMOVE
+    fi
+    
+    git clone -b $vers https://github.com/Subaru-PFS/${prod}.git
+    ( cd $prod;
+      # Bootstrap: 
+      if test "$prod" = "ics_config"; then
+          if test -z "$ICS_MHS_ROOT"; then
+              echo ICS_MHS_ROOT cannot be empty when installing ics_config >&2
+              export
+              exit 2
+          fi
+          sed "s;%(ICS_MHS_ROOT);$ICS_MHS_ROOT;g" < ups/ics_config.table-in > ups/ics_config.table
+      fi
+
+      # Explicitly -keep already installed versions. Since
+      # we unset everything which we install before starting, this
+      # means that we honor all the product:versions this script has
+      # already installed
+      setup -v -k -r .
+
+      eupsinstall
+
+      # Get rid of additional versions. Only need to do this until
+      # we have access to more eups information.
+      # unsetup $prod 
+      # eups declare -v -c $prod $(eups list $prod)
+
+      # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
+      #( cd $(eups list -c -d $prod);
+      #  ln -s lib/python python
+      #)
+    )
+    setup -v -k $prod $vers
+done
+
+exit 0
+
+
+
