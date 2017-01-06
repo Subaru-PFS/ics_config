@@ -116,7 +116,7 @@ for p in $ICS_INSTALL_PRODUCTS; do
               export
               exit 2
           fi
-          sed "s;%(ICS_MHS_ROOT);$ICS_MHS_ROOT;g" < ups/ics_config.table-in > ups/ics_config.table
+          sed "s;%(ICS_ROOT);$ICS_MHS_ROOT;g" < ups/ics_config.table-in > ups/ics_config.table
       fi
 
       # Explicitly -keep already installed versions. Since
