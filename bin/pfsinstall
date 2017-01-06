@@ -125,6 +125,15 @@ for p in $ICS_INSTALL_PRODUCTS; do
       # already installed
       setup -v -k -r .
 
+      TAG=$(git describe --exact-match 2>/dev/null)
+      IS_TAG=$?
+
+      if test $IS_TAG -ne 0; then
+          _vers=$vers
+          vers=$(git describe)
+          echo "   requested version $_vers is not a tag, installing with eups version $vers. I think."
+      fi
+      
       eupsinstall
 
       # Get rid of additional versions. Only need to do this until
