@@ -1,0 +1,15 @@
+default: &DEFAULT
+  tron:
+    hostname: tron.pfs
+    cmdrPort: 6093
+  listen:
+    interface: bee-$cam.pfs     # localhost is safest, if on same host
+                                # as tron hub.
+    port: 9103
+  fee:
+    port: /dev/ttyS1
+
+  controllers: &CONTROLLERS
+    all: [fee, ccd]
+    starting: [fee, ccd]
+

@@ -1,0 +1,43 @@
+default: &DEFAULT
+  tron:
+    hostname: tron.pfs
+    cmdrPort: 6093
+  listen:
+    interface: bee-$cam.pfs     # localhost is safest, if on same host
+                                # as tron hub.
+    port: 9104
+  turbo:
+    port: /dev/ttyS1
+
+  controllers: &CONTROLLERS
+    all: [ PCM, temps, turbo, ionpump, cooler, gatevalve, roughGauge1 ]
+    starting: [ PCM, temps, turbo, ionpump, cooler, gatevalve ]
+
+  PCM:
+    host: pcm-$cam.pfs
+    port: 1000
+    portNames: [ motors,gauge,cooler,temps,bee,fee,interlock,heaters ]
+
+  temps:
+    host: temps-$cam.pfs
+    port: 1024
+
+  turbo:
+    # Currently using a TCP interface; must fix!
+    host: bee-$cam.pfs
+    port: 4001
+
+  ionpump: &IONPUMP
+    host: moxa-rack-$specName.pfs
+    port: 4001
+    busid: 1
+    pumpids: []
+
+  roughGauge1:
+    host: moxa-pfs.pfs
+    port: 4001
+    busid: 1
+
+xcu_$cam:
+  <<: *DEFAULT
+

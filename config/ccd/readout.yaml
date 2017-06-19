@@ -1,0 +1,43 @@
+_default: &DEFAULT
+  serialNumbers: &SERIAL_NUMBERS
+    ccd0: invalid
+    ccd1: invalid
+    adc: invalid
+    fee: invalid
+    pa0: invalid
+
+  geometry: &GEOMETRY
+    namps: 8                    # 2 CCDs, each with 4 amps.
+    ccdRows: 4224               # Physical pixels in readout
+    ccdAmpCols: 520             # Physical pixels in readout
+    leadinRows: 50              # Rows to ignore
+    leadinCols: 8               # Cols to ignore
+    overscanRows: 32            # Additional pixels
+    overscanCols: 32            # Additional pixels
+
+  requiredVersions: &REQUIRED_VERSIONS
+    fee: 20170601_02
+    fpga: 70
+
+r1:
+  <<: *DEFAULT
+  serialNumbers:
+    <<: *SERIAL_NUMBERS
+    ccd0: 'BI13-06-4K-1'
+    ccd1: 'BI13-07-4K-2'
+    adc: 3063064
+    fee: 3060347
+    pa0: 194
+  adcOffsets:
+    reference: [ -238.01, -226.84, -231.84, -234.62, -242.69, -100.98, -194.99, -235.47 ]
+    master: [ -298.84, -298.84, -298.84, -298.84, -298.84, -146.51, -277.68, -298.84 ]
+
+b9:
+  <<: *DEFAULT
+  serialNumbers:
+    <<: *SERIAL_NUMBERS
+    ccd0: dummy_0
+    ccd1: dummy_1
+    adc: 3063057
+    fee: 3060351
+    pa0: 186
