@@ -9,8 +9,6 @@ import sys
 
 from collections import OrderedDict
 
-import config
-
 def hostnameId():
     """ Return the identification part of our hostname. 
 
@@ -115,11 +113,11 @@ def main(argv=None):
     import argparse
 
     sites = SpectroIds.validSites
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--site', default=None, choices=sites,
                         help='pass in site name')
-    
+
     ourName = parser.add_mutually_exclusive_group()
     ourName.add_argument('--cam', dest='unitName', default=None,
                          help='pass in camera name (e.g. "b2")')
@@ -135,7 +133,7 @@ def main(argv=None):
     except:
         parser.print_help()
         raise
-    
+
     idDict = ids.idDict
 
     if args.key is None:
