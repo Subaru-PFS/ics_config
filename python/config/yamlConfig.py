@@ -22,20 +22,28 @@ class YamlConfig(object):
            The configuration tree's root directory. By default, the ics_config 
            products's config/ directory
         namespace : dict
-           A dictionary through which yaml string variables
+           A dictionary through which all yaml string variables
            are evaluated.
         logger : logging.Logger
            By default, the logger named 'config'
         logLevel : int
 
         By default, configuration entries are indexed by a
-        dot-delimited name starting with the controlling topLevel's name
+        dot-delimited name starting with the controlling topLevel's name. 
+        E.g.
+          - 'pfs', 'tron.addresses'
+          - 'ccd', 'readout.r1.adcOffsets'
+          - 'xcu', 'connections.b1.turbo'
 
         Internally, we keep a dictionary of nodes keyed by the partial
         dot-delimited names, where the values are (fullpath, content)
         pairs, and content is the yaml-interpreted python structure if
         the name resolves to a YAML file, or None if it resolves to a
         directory.
+
+        We keep a cache of parsed configurations. This can be
+        .flush()ed manually, and also gets flushed after a query with
+        an additional namespace.
         """
 
         if logger is None:
