@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 
 eupspkg -r -e "$@" install
-eupspkg -r -e "$@" decl
-
+eupspkg -r -e "$@" decl -c
