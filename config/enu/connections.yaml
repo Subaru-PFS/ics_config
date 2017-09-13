@@ -1,0 +1,56 @@
+default: &DEFAULT
+  tron:
+    hostname: tron.pfs
+    cmdrPort: 6093
+  listen: &LISTEN
+    interface: ait-server.pfs
+
+  controllers: &CONTROLLERS
+    all: [ rexm, bsh, slit, temps ]
+    starting: [slit, bsh, rexm ]
+
+  bsh:
+    mode: operation
+    host: biasha-$specName.pfs
+    port: 23
+    bia_strobe : off
+    bia_period : 1000
+    bia_duty : 150
+
+  slit: &SLIT
+    mode: operation
+    host: fpsa-$specName.pfs
+    port : 5001
+    thicknessCarriage: 21.0
+    dither_axis: [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+    focus_axis: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    magnification: 1.0
+    lowerBounds: [-5.0,-5.0,-5.0,-1.0,-1.0,-1.0]
+    upperBounds: [5.0,5.0,5.0,1.0,1.0,1.0]
+
+  temps:
+    mode: simulation
+    host1: obatemps1-$specName.pfs
+    host2: obatemps2-$specName.pfs
+    port: 1024
+
+  rexm:
+    mode: operation
+    port: /dev/ttyS0
+
+  iis:
+    mode: simulation
+  pdu:
+    mode: simulation
+
+
+enu_sm1:
+  <<: *DEFAULT
+  listen:
+    <<: *LISTEN
+    port: 9980
+  slit:
+    <<: *SLIT
+    home: [-0.329, -0.0575, 204.56, 0.0, 0.21411, -120]
+    slit_position : [-108.0, 0, 262, 0.0, 0.0, -119.7]
+
