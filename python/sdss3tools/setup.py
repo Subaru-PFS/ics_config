@@ -1,8 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import distutils.core
 import glob
 import os
-import find
-import getPackageName
+from . import find
+from . import getPackageName
 
 def setup(debug=False, copyUps=False, **kargs):
     """Helpful version of distuils.core.setup
@@ -37,7 +39,7 @@ def setup(debug=False, copyUps=False, **kargs):
     All paths are relative to your package root directory
     (the directory containing your setup.py file).
     """
-    print "copyUps: %s" % (copyUps)
+    print("copyUps: %s" % (copyUps))
     
     if "name" not in kargs:
         kargs["name"] = getPackageName.getPackageName("python")
@@ -55,22 +57,22 @@ def setup(debug=False, copyUps=False, **kargs):
     stdDataDirs = ("bin", "doc", "etc", "examples", "lib")
     if copyUps:
         stdDataDirs += ("ups",)
-        print "add ups dir to copy"
+        print("add ups dir to copy")
     data_dirs = list(set(kargs.pop("data_dirs", ())) | set(stdDataDirs))
     data_files = list(kargs.get("data_files", ()))
     for dirName in sorted(data_dirs):
         data_files += find.findDataFiles(dirName)
     kargs["data_files"] = data_files
     if debug:
-        print "Keyword arguments for setup:"
+        print("Keyword arguments for setup:")
         for key in sorted(kargs.keys()):
             if key != "data_files":
-                print "* %s: %s" % (key, kargs[key])
+                print("* %s: %s" % (key, kargs[key]))
             else:
-                print "* %s:" % (key,)
+                print("* %s:" % (key,))
                 for dirPath, fileList in data_files:
-                    print " ", dirPath
+                    print(" ", dirPath)
                     for fn in fileList:
-                        print "   ", fn
+                        print("   ", fn)
 
     distutils.core.setup(**kargs)

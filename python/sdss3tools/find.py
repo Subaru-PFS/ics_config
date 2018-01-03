@@ -1,3 +1,4 @@
+from __future__ import print_function
 from distutils.core import setup
 import distutils.util
 import fnmatch
@@ -63,11 +64,11 @@ def findFiles(where, excludeFiles=(".*", "*~", "#*"), excludeDirs=(".*",)):
     """
     out = []
     for dirPath, dirNames, fileNames in os.walk(where):
-        print "after walk dirPath=%s, dirNames=%s, fileNames=%s" % (dirPath, dirNames, fileNames)
+        print("after walk dirPath=%s, dirNames=%s, fileNames=%s" % (dirPath, dirNames, fileNames))
         for excludePat in excludeDirs:
             dirNames[:] = [dn for dn in dirNames if not fnmatch.fnmatch(dn, excludePat)]
         for excludePat in excludeFiles:
             fileNames[:] = [fn for fn in fileNames if not fnmatch.fnmatch(fn, excludePat)]
         out += [os.path.join(dirPath, fn) for fn in fileNames]
-        print "before iter dirPath=%s, dirNames=%s, fileNames=%s" % (dirPath, dirNames, fileNames)
+        print("before iter dirPath=%s, dirNames=%s, fileNames=%s" % (dirPath, dirNames, fileNames))
     return out
