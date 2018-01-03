@@ -19,6 +19,10 @@ _default: &DEFAULT
     fee: 20170601_02
     fpga: 70
 
+  adcOffsets:
+    reference: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
+    master: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
+
 r1:
   <<: *DEFAULT
   serialNumbers:
@@ -32,12 +36,26 @@ r1:
     reference: [ -238.01, -226.84, -231.84, -234.62, -242.69, -100.98, -194.99, -235.47 ]
     master: [ -298.84, -298.84, -298.84, -298.84, -298.84, -146.51, -277.68, -298.84 ]
 
+b1:
+  <<: *DEFAULT
+  serialNumbers:
+    <<: *SERIAL_NUMBERS
+    ccd0: 'BI14-25-4K-3'
+    ccd1: 'BI14-41-4K-3'
+    adc: 3063056
+    fee: 3060350
+    pa0: 190
+  adcOffsets:
+    reference: [-207. -211. -200. -223. -216. -209. -205. -222.]
+    master: [-295.2 -300.4 -285.  -317.9 -307.7 -297.9 -291.5 -316.2]
+
+# Bench system
 b9:
   <<: *DEFAULT
   serialNumbers:
     <<: *SERIAL_NUMBERS
     ccd0: dummy_0
     ccd1: dummy_1
-    adc: 3063057
-    fee: 3060351
-    pa0: 186
+    adc: 0
+    fee: 0
+    pa0: 0

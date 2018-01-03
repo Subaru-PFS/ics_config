@@ -1,43 +1,116 @@
 default: &DEFAULT
-  tron:
-    hostname: tron.pfs
-    cmdrPort: 6093
   listen:
     interface: bee-$cam.pfs     # localhost is safest, if on same host
                                 # as tron hub.
     port: 9104
-  turbo:
-    port: /dev/ttyS1
 
   controllers: &CONTROLLERS
     all: [ PCM, temps, turbo, ionpump, cooler, gatevalve, roughGauge1 ]
     starting: [ PCM, temps, turbo, ionpump, cooler, gatevalve ]
 
-  PCM:
+  PCM: &PCM
     host: pcm-$cam.pfs
     port: 1000
     portNames: [ motors,gauge,cooler,temps,bee,fee,interlock,heaters ]
 
-  temps:
+  temps: &TEMPS
     host: temps-$cam.pfs
     port: 1024
 
-  turbo:
-    # Currently using a TCP interface; must fix!
+  # Currently using a TCP interface; must fix!
+  turbo: &TURBO
     host: bee-$cam.pfs
     port: 4001
+
+  NOTturbo:
+    port: /dev/ttyS1
 
   ionpump: &IONPUMP
     host: moxa-rack-$specName.pfs
     port: 4001
-    busid: 1
-    pumpids: []
-
+    busId: None
+    pumpIds: [None, None]
+    
+  # Pull out into roughingActor
   roughGauge1:
     host: moxa-pfs.pfs
     port: 4001
     busid: 1
 
-xcu_$cam:
+  # Which periodic monitors to start when a device is turned on.
+  monitors: &MONITORS
+    temps: 15
+    turbo: 15
+    ionpump: 15
+    cooler: 15
+    gatevalve: 60
+
+# There are two 2-pump ionpump controllers per 3-dewar spectrograph.
+#
+blue: &BLUE_DEFAULT
   <<: *DEFAULT
 
+  ionpump:
+    <<: *IONPUMP
+    busId: 1
+    pumpIds: [1, 2]
+
+red: &RED_DEFAULT
+  <<: *DEFAULT
+
+  ionpump:
+    <<: *IONPUMP
+    busId: 1
+    pumpIds: [3, 4]
+
+nir: &NIR_DEFAULT
+  <<: *DEFAULT
+
+  ionpump:
+    <<: *IONPUMP
+    busId: 2
+    pumpIds: [1, 2]
+
+b1:
+  <<: *BLUE_DEFAULT
+b2:
+  <<: *BLUE_DEFAULT
+b3:
+  <<: *BLUE_DEFAULT
+b4:
+  <<: *BLUE_DEFAULT
+
+r1:
+  <<: *RED_DEFAULT
+r2:
+  <<: *RED_DEFAULT
+r3:
+  <<: *RED_DEFAULT
+r4:
+  <<: *RED_DEFAULT
+
+n1:
+  <<: *NIR_DEFAULT
+n2:
+  <<: *NIR_DEFAULT
+n3:
+  <<: *NIR_DEFAULT
+n4:
+  <<: *NIR_DEFAULT
+  
+# Optics Lab dewar
+b9:
+  <<: *BLUE_DEFAULT
+
+  controllers:
+    <<: *CONTROLLERS
+    all: [ PCM, temps ]
+    starting: [ PCM, temps ]
+
+  monitors:
+    <<: *MONITORS
+    turbo: 0
+    ionpump: 0
+    cooler: 0
+    gatevalve: 0
+    
