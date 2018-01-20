@@ -3,18 +3,20 @@
 usage()
 {
     (
-        echo "usage: $0 product-list\n"
+        echo "usage: $0 [-c] product-list\n"
         echo "   Install PFS git products into our eups tree."
         echo
         echo "    product-list is a space-delimited list of productName:productVersion pairs."
         echo "        e.g. tron_actorcore:1.6.2 ics_actorkeys:master"
         echo
-        echo "    products are installed in the order listed, and will ube built and"
+        echo "    products are installed in the order listed, and will be built and"
         echo "       installed against any previously listed product+version"
         echo
         echo "    The productVersions must be existing git tags or refs, and the installed "
-        echo "    eups versions will match."
-
+        echo "    eups versions will match. The .git tree will not be installed."
+        echo
+        echo " Args:"
+        echo "  -c   If set, all products are also tagged 'current'"
     ) >&2
     exit 1
 }
@@ -75,6 +77,8 @@ while getopts :h arg; do
           usage
           ;;
        h) usage
+          ;;
+       c) TAG_AS_CURRENT=1
           ;;
     esac
 done
@@ -149,6 +153,12 @@ for p in $ICS_INSTALL_PRODUCTS; do
       # we have access to more eups information.
       # unsetup $prod 
       # eups declare -v -c $prod $(eups list $prod)
+
+      # Optionally declare current versions
+      if test -n "TAG_AS_CURRENT"; then
+          eups declare -c $prod ${eups_version}
+          echo "$prod ${eups_version} has been declared current"
+      fi
 
       # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
       ( cd $(eups list -d $prod ${eups_version});
