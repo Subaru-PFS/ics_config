@@ -71,7 +71,7 @@ get_versions()
     echo $vlist
 }
 
-while getopts :h arg; do
+while getopts :ch arg; do
     case $arg in
        ?) echo "unknown argument: $OPTARG"
           usage
