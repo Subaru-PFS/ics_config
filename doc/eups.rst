@@ -152,7 +152,7 @@ Basic EUPS internals
 
 For a product named ``$PRODUCT`` to be an ``EUPS`` product, the top
 level directory must contain a ``ups`` directory, and that must
-contain a `$PRODUCT.table` "table" file.
+contain a ``$PRODUCT.table`` "table" file.
 
 The table file contains instructions for modifying the process
 environment and for specifying dependencies on other products. The
