@@ -15,7 +15,7 @@ usage()
 }
 
 ICS_ROOT=$HOME/mhs
-EUPS_BOOTSTRAP_VERSION=1.5.7
+EUPS_BOOTSTRAP_VERSION=2.1.4
 
 # New eups versions want to use /usr/bin/python, and insist that
 # anything else is explicitly requested. Bypass that logic.
@@ -26,11 +26,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_config:1.3.4
-                    tron_tron:1.2.1
-                    tron_actorcore:1.4.0
-                    ics_actorkeys:master
-                    ics_testaActor:1.2.1"
+ICS_DEVEL_PRODUCTS="ics_config:1.4.1"
 
 get_product()
 {
@@ -200,7 +196,7 @@ for p in $ICS_DEVEL_PRODUCTS; do
     echo "######## installing version $vers of $prod..."
 
     cd $ICS_DEVEL_ROOT
-    git clone gitolite@pfs.ipmu.jp:/$prod
+    git clone https://github.com/Subaru-PFS/$prod
     ( cd $prod;
       git checkout $vers
 
