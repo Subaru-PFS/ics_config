@@ -21,7 +21,7 @@ PFS_REPO_ROOT="https://github.com/Subaru-PFS"
 
 # New eups versions want to use /usr/bin/python, and insist that
 # anything else is explicitly requested. Bypass that logic.
-PYTHON_PATH=$(which python)
+PYTHON_PATH=$(which python3)
 EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 
 #  The ICS pieces we want to install, in order. 
@@ -166,7 +166,7 @@ if test -n "$EUPS_VERSION"; then
     git clone -b $EUPS_VERSION https://github.com/RobertLuptonTheGood/eups.git eups 
 
     (cd eups 
-        ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_INSTALL_DIR --with-python=`which python`
+        ./configure --with-eups=$EUPS_PATH --prefix=$EUPS_INSTALL_DIR --with-python=`which python3`
         make install
     )
     if test $? -ne 0; then 
