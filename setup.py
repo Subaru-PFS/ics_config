@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Install this package. Requires sdss3tools.
 
 To use:
-python setup.py install
+python3 setup.py install
 """
 import sdss3tools
 
