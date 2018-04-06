@@ -183,3 +183,32 @@ installed version from the last example would be written as::
 This is how versions are permanently frozen: the executables are
 copied into an internal tree and the version numbers are explicitly
 written.
+
+Installation from scratch
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Prerequisites
+_____________
+
+Some packages are required before starting the installation.
+Under Debian/Ubuntu system::
+
+  apt-get install git cmake
+
+Python 3 is also required, miniconda can be installed from <https://conda.io/miniconda.html>
+
+
+EUPS installation
+_________________
+
+This installation is done using the ``bootstrap_mhs`` script that you can get via ::
+
+  wget https://github.com/Subaru-PFS/ics_config/raw/master/bin/bootstrap_mhs
+  bash bootstrap_mhs
+
+Then you are invited by the bootstrap_mhs script to add the setup line in your .bashrc or execute the command line.
+
+the bootstrap_mhs installed also the ``ics_config`` PFS package, setting up ics_config you
+allow you to use pfsinstall::
+
+  setup -v ics_config
