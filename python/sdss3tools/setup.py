@@ -42,7 +42,7 @@ def setup(debug=False, copyUps=False, **kargs):
     print("copyUps: %s" % (copyUps))
     
     if "name" not in kargs:
-        kargs["name"] = getPackageName.getPackageName("python")
+        kargs["name"] = getPackageName("python")
     name = kargs["name"]
     if "package_dir" not in kargs:
         kargs["package_dir"] = {'': 'python'}
