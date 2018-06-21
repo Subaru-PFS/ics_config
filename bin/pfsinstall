@@ -121,10 +121,10 @@ for p in $ICS_INSTALL_PRODUCTS; do
     if test -d ${prod}; then
         REMOVE=$ICS_BUILD_ROOT/${prod}
         echo REMOVING $REMOVE
-        rm -rf $REMOVE || echo "FAILED to remove ${REMOVE}: exiting" >&2 && exit 1
+        rm -rf $REMOVE || (echo "FAILED to remove ${REMOVE}: exiting" >&2 && exit 1)
     fi
     
-    git clone -b $vers https://github.com/Subaru-PFS/${prod}.git
+    git clone --recursive -b $vers https://github.com/Subaru-PFS/${prod}.git
     ( cd $prod;
       # Bootstrap: 
       if test "$prod" = "ics_config"; then
