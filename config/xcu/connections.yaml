@@ -1,6 +1,6 @@
 default: &DEFAULT
   listen:
-    interface: bee-$cam.pfs     # localhost is safest, if on same host
+    interface: bee-$cam         # localhost is safest, if on same host
                                 # as tron hub.
     port: 9104
 
@@ -9,31 +9,31 @@ default: &DEFAULT
     starting: [ PCM, temps, turbo, ionpump, cooler, gatevalve ]
 
   PCM: &PCM
-    host: pcm-$cam.pfs
+    host: pcm-$cam
     port: 1000
     portNames: [ motors,gauge,cooler,temps,bee,fee,interlock,heaters ]
 
   temps: &TEMPS
-    host: temps-$cam.pfs
+    host: temps-$cam
     port: 1024
 
   # Currently using a TCP interface; must fix!
   turbo: &TURBO
-    host: bee-$cam.pfs
+    host: bee-$cam
     port: 4001
 
   NOTturbo:
     port: /dev/ttyS1
 
   ionpump: &IONPUMP
-    host: moxa-rack-$specName.pfs
+    host: moxa-rack-$specName
     port: 4001
     busId: None
     pumpIds: [None, None]
     
   # Pull out into roughingActor
   roughGauge1:
-    host: moxa-pfs.pfs
+    host: moxa-pfs
     port: 4001
     busid: 1
 

@@ -12,12 +12,12 @@ _default: &DEFAULT
     ccdAmpCols: 520             # Physical pixels in readout
     leadinRows: 50              # Rows to ignore
     leadinCols: 8               # Cols to ignore
-    overscanRows: 32            # Additional pixels
+    overscanRows: 76            # Additional pixels
     overscanCols: 32            # Additional pixels
 
   requiredVersions: &REQUIRED_VERSIONS
     fee: 20170601_02
-    fpga: 70
+    fpga: 71
 
   adcOffsets:
     reference: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]

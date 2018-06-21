@@ -1,6 +1,6 @@
 default: &DEFAULT
   listen:
-    interface: bee-$cam.pfs     # localhost is safest, if on same host
+    interface: bee-$cam         # localhost is safest, if on same host
                                 # as tron hub.
     port: 9103
   fee:
