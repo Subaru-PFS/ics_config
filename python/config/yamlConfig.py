@@ -8,7 +8,7 @@ import ruamel_yaml
 
 
 class YamlConfig(object):
-    def __init__(self, topLevel, root=None,
+    def __init__(self, topLevel=None, root=None,
                  namespace=None,
                  logger=None, logLevel=logging.INFO):
         """
@@ -152,12 +152,12 @@ class YamlConfig(object):
         with open(self._yamlPath(path.split('.'))+'.yaml', 'r') as f:
             return '\n'.join(f.readlines())
 
-    def get(self, path, extraNamespace=None, flush=False):
+    def get(self, *pathParts, extraNamespace=None, flush=False):
         """ Return the configuration value for the given dotted path. 
 
         Args
         ----
-        path : dot-delimited string
+        pathParts : dot-delimited strings
           The name of the configuration variable to load.
         extraNamespace : dict-like
            update self.namespace with this before interpolating.
@@ -171,6 +171,11 @@ class YamlConfig(object):
         ------
         KeyError 
         """
+
+        if flush:
+            self.flush()
+
+        path = '.'.join(pathParts)
 
         namespace = self.finalNamespace(extraNamespace)
         cfg, cfgParts = self._loadOnDemand(path, extraNamespace=extraNamespace)
