@@ -15,7 +15,7 @@ usage()
 }
 
 ICS_ROOT=$HOME/mhs
-EUPS_BOOTSTRAP_VERSION=2.1.4
+EUPS_BOOTSTRAP_VERSION=2.1.5
 
 PFS_REPO_ROOT="https://github.com/Subaru-PFS"
 
@@ -28,7 +28,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_config:1.4.5"
+ICS_DEVEL_PRODUCTS="ics_config:1.4.6"
 
 get_product()
 {
