@@ -169,6 +169,12 @@ for p in $ICS_INSTALL_PRODUCTS; do
     # fetch the eups version.
     eups_version=$(cd $prod; echo $(get_git_version))
     setup -v -k $prod $eups_version
+
+    # cleaning up /tmp/build-ics
+    REMOVE=$ICS_BUILD_ROOT/${prod}
+    echo REMOVING $REMOVE
+    rm -rf $REMOVE
+
 done
 
 exit 0
