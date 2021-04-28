@@ -28,7 +28,7 @@ EUPS_OPTIONS="--with-python=$PYTHON_PATH"
 #    These are the essential products to run tron and to build and run an actor.
 #    Note that ics_mhs_config is handled independently, by this script.
 # 
-ICS_DEVEL_PRODUCTS="ics_config:1.4.6"
+ICS_DEVEL_PRODUCTS="ics_config:1.4.7 pfs_utils:6.0.0 tron_actorcore:2.2.7 ics_actorkeys:1.4.12"
 
 get_product()
 {
