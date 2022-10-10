@@ -3,7 +3,7 @@
 usage()
 {
     (
-        echo "usage: $0 [-c] product-list\n"
+        echo "usage: $0 [-c] [-U URL] product-list\n"
         echo "   Install PFS git products into our eups tree."
         echo
         echo "    product-list is a space-delimited list of productName:productVersion pairs."
@@ -16,7 +16,8 @@ usage()
         echo "    eups versions will match. The .git tree will not be installed."
         echo
         echo " Args:"
-        echo "  -c   If set, all products are also tagged 'current'"
+        echo "  -c     If set, all products are also tagged 'current'"
+        echo "  -U URL Use this base URL for git products. Will resolve to $URL/{product}.git"
     ) >&2
     exit 1
 }
@@ -71,17 +72,28 @@ get_versions()
     echo $vlist
 }
 
-while getopts :ch arg; do
+URL="https://github.com/Subaru-PFS"
+while getopts 'cU:h' arg; do
     case $arg in
+       U) URL=${OPTARG}
+          echo "-u got $URL"
+          ;;
+
+       c) TAG_AS_CURRENT=1
+          ;;
+
        ?) echo "unknown argument: $OPTARG"
+          usage
+          ;;
+       :) echo "Option -$OPTARG requires an argument." >&2
           usage
           ;;
        h) usage
           ;;
-       c) TAG_AS_CURRENT=1
-          ;;
+
     esac
 done
+shift $((OPTIND-1))
 
 . $EUPS_DIR/bin/setups.sh
 
@@ -124,7 +136,12 @@ for p in $ICS_INSTALL_PRODUCTS; do
         rm -rf $REMOVE || (echo "FAILED to remove ${REMOVE}: exiting" >&2 && exit 1)
     fi
     
-    git clone --recursive -b $vers https://github.com/Subaru-PFS/${prod}.git
+    git clone --recursive -b $vers ${URL}/${prod}.git
+    if test $? -gt 0; then
+        echo
+        echo "pfsinstall: check your access and git credentials for ${URL}/${prod}.git" >&2
+        exit 2
+    fi
     ( cd $prod;
       # Bootstrap: 
       if test "$prod" = "ics_config"; then
