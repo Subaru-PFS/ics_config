@@ -101,8 +101,8 @@ ICS_INSTALL_PRODUCTS="$@"
 
 #################################
 
-ICS_BUILD_ROOT=/tmp/build-ics
-mkdir $ICS_BUILD_ROOT 2>/dev/null
+ICS_BUILD_ROOT=/software/build/$USER
+mkdir -p $ICS_BUILD_ROOT 2>/dev/null
 cd $ICS_BUILD_ROOT
 if test $(pwd) != $ICS_BUILD_ROOT; then
     echo "Could not mkdir or cd into $ICS_BUILD_ROOT. Not safe, so exiting." >&2
@@ -187,7 +187,7 @@ for p in $ICS_INSTALL_PRODUCTS; do
     eups_version=$(cd $prod; echo $(get_git_version))
     setup -v -k $prod $eups_version
 
-    # cleaning up /tmp/build-ics
+    # clean up staging directory.
     REMOVE=$ICS_BUILD_ROOT/${prod}
     echo REMOVING $REMOVE
     rm -rf $REMOVE
