@@ -12,11 +12,14 @@ usage()
         echo "    products are installed in the order listed, and will be built and"
         echo "       installed against any previously listed product+version"
         echo
-        echo "    The productVersions must be existing git tags or refs, and the installed "
-        echo "    eups versions will match. The .git tree will not be installed."
+        echo "    The productVersions must be existing git tags, and the installed "
+        echo "    eups versions will match. The .git tree will in general be installed."
+        echo
+        echo "    Installed products will always be declared current."
+        echo "    If an version has already been installed, a new eups version will be installed, "
+        echo "       with a trailing letter to distinguish it."
         echo
         echo " Args:"
-        echo "  -c     If set, all products are also tagged 'current'"
         echo "  -U URL Use this base URL for git products. Will resolve to $URL/{product}.git"
     ) >&2
     exit 1
@@ -72,14 +75,36 @@ get_versions()
     echo $vlist
 }
 
+# Return the next version suffix required to install the given product and version.
+# Basically, if the version has already been installed, append the next unused letter
+get_suffix()
+{
+    local prod=$1
+    local vers=$2
+
+    # If the version has not yet been installed, no suffix needed
+    if test -z "$(eups list $prod $vers 2>/dev/null | sed 's/^ *//; s/ .*//')"; then
+        echo ""
+        return
+    fi
+
+    # If the version has been installed, peel off highest trailing letter and increment it.
+    # Slightly gross: the letter before "a" is the backtick.
+    versMatch=${vers//\./\\.}
+    have=$(eups list $prod "${vers}*" | sed "s/^ *//; s/ .*$//; s/${versMatch}//" | sort | tail -1)
+    if test "$have" = ""; then
+        have='`'
+    fi
+
+    next=$(echo "$have" | tr '`-y' 'a-z')
+    echo $next
+}
+
 URL="https://github.com/Subaru-PFS"
 while getopts 'cU:h' arg; do
     case $arg in
        U) URL=${OPTARG}
           echo "-u got $URL"
-          ;;
-
-       c) TAG_AS_CURRENT=1
           ;;
 
        ?) echo "unknown argument: $OPTARG"
@@ -125,9 +150,11 @@ done
 #
 for p in $ICS_INSTALL_PRODUCTS; do
     prod=$(get_product $p)
-    vers=$(get_version $p)
+    gitVers=$(get_version $p)
+    suffix=$(get_suffix $prod $gitVers)
+    eupsVers=${gitVers}${suffix}
     echo
-    echo "######## installing version $vers of $prod..."
+    echo "######## installing version ${gitVers}/${eupsVers} of $prod..."
 
     cd $ICS_BUILD_ROOT
     if test -d ${prod}; then
@@ -136,7 +163,7 @@ for p in $ICS_INSTALL_PRODUCTS; do
         rm -rf $REMOVE || (echo "FAILED to remove ${REMOVE}: exiting" >&2 && exit 1)
     fi
     
-    git clone --recursive -b $vers ${URL}/${prod}.git
+    git clone --recursive -b $gitVers ${URL}/${prod}.git
     if test $? -gt 0; then
         echo
         echo "pfsinstall: check your access and git credentials for ${URL}/${prod}.git" >&2
@@ -159,33 +186,20 @@ for p in $ICS_INSTALL_PRODUCTS; do
       # already installed
       setup -v -k -r .
 
-      eups_version=$(get_git_version $vers)
-      eupsinstall
-      
-      if test ${eups_version} != $vers; then
-          echo "   requested version $vers is not a tag, installed with eups version ${eups_version}. I think." >&2
+      gitTag=$(get_git_version)
+      if test $gitTag != $gitVers; then
+          echo "   requested version $gitVers is not a tag. Bailing out." >&2
+          exit 3
       fi
       
-      # Get rid of additional versions. Only need to do this until
-      # we have access to more eups information.
-      # unsetup $prod 
-      # eups declare -v -c $prod $(eups list $prod)
-
-      # Optionally declare current versions
-      if test -n "TAG_AS_CURRENT"; then
-          eups declare -c $prod ${eups_version}
-          echo "$prod ${eups_version} has been declared current"
-      fi
-
-      # Hackity-hack-hack, until we adjust the --install-lib logic in eupsinstall
-      ( cd $(eups list -d $prod ${eups_version});
+      eupsinstall VERSION_SUFFIX="$suffix"
+      ( cd $(eups list -d $prod ${eupsVers});
         ln -s lib/python python
       )
     )
 
-    # fetch the eups version.
-    eups_version=$(cd $prod; echo $(get_git_version))
-    setup -v -k $prod $eups_version
+    # Finally, set up the version we just installed.
+    setup -v -k $prof $eupsVers
 
     # clean up staging directory.
     REMOVE=$ICS_BUILD_ROOT/${prod}
