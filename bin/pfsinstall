@@ -195,6 +195,18 @@ for p in $ICS_INSTALL_PRODUCTS; do
       eupsinstall VERSION_SUFFIX="$suffix"
       ( cd $(eups list -d $prod ${eupsVers});
         ln -s lib/python python
+        # special case for ics-like actors (fps, iic..etc) to add the correct symlink
+        (
+          cd python || { echo "python/ not found"; exit 1; }
+          set -- $(compgen -G 'ics/*Actor')
+          if [ -z "$1" ]; then
+            echo "no actor found, not creating symlink"
+          else
+            filepath=$1
+            actorPath=${filepath##*/}
+            ln -s "$filepath" "$actorPath"
+          fi
+        )
       )
     )
 
