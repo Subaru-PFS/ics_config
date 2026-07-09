@@ -1,52 +1,61 @@
 #!/usr/bin/env bash
 
+# Print help information and exit
 usage()
 {
     (
         echo "usage: $0 [-c] [-U URL] product-list\n"
         echo "   Install PFS git products into our eups tree."
         echo
-        echo "    product-list is a space-delimited list of productName:productVersion pairs."
-        echo "        e.g. tron_actorcore:1.6.2 ics_actorkeys:master"
+        echo "   product-list is a space-delimited list of productName:productVersion pairs."
+        echo "       e.g. tron_actorcore:1.6.2 ics_actorkeys:master"
         echo
-        echo "    products are installed in the order listed, and will be built and"
+        echo "   products are installed in the order listed, and will be built and"
         echo "       installed against any previously listed product+version"
         echo
-        echo "    The productVersions must be existing git tags, and the installed "
-        echo "    eups versions will match. The .git tree will in general be installed."
+        echo "   The productVersions must be existing git tags, and the installed "
+        echo "   eups versions will match. The .git tree will in general be installed."
         echo
-        echo "    Installed products will always be declared current."
-        echo "    If an version has already been installed, a new eups version will be installed, "
+        echo "   Installed products will always be declared current."
+        echo "   If an version has already been installed, a new eups version will be installed, "
         echo "       with a trailing letter to distinguish it."
         echo
         echo " Args:"
-        echo "  -U URL Use this base URL for git products. Will resolve to $URL/{product}.git"
-    ) >&2
+        echo "  -U URL Use this base URL for git products. Will resolve to \$URL/{product}.git"
+    ) >&2 # Redirect output to standard error (stderr)
     exit 1
 }
 
 ICS_DEVEL_PRODUCTS=
 
+# Extracts the product name from a "product:version" string
+# Uses bash parameter expansion to strip everything from the first ':' to the end
 get_product()
 {
     echo "${1%%:*}"
 }
 
+# Extracts the version from a "product:version" string
+# Strips everything up to the first ':'. Defaults to 'master' if no version is found.
 get_version()
 {
     local v=${1##*:}
     echo "${v:-master}"
 }
 
+# Determines the current exact Git version of the cloned repository
 get_git_version()
 {
     local vers
     local IS_TAG
     local full_version
 
+    # Check if the current commit has an exact tag attached to it
     vers=$(git describe --exact-match 2>/dev/null)
     IS_TAG=$?
 
+    # If it's not an exact tag (exit code != 0), fallback to a standard git describe
+    # which includes the closest tag, number of commits since, and the commit hash.
     if test $IS_TAG -ne 0; then
         full_version=$(git describe)
         vers=$full_version
@@ -55,6 +64,7 @@ get_git_version()
     echo $vers
 }
 
+# Iterates through the provided input list and extracts just the product names
 get_products()
 {
     local plist=""
@@ -65,6 +75,7 @@ get_products()
     echo $plist
 }
 
+# Iterates through the provided input list and extracts just the versions
 get_versions()
 {
     local vlist=""
@@ -75,145 +86,182 @@ get_versions()
     echo $vlist
 }
 
-# Return the next version suffix required to install the given product and version.
-# Basically, if the version has already been installed, append the next unused letter
+# Version Collision Handler: Returns the next version suffix needed to avoid overwriting.
+# If version '1.0' is installed, installing it again returns 'a' (making it 1.0a).
+# Installing it again returns 'b', and so on.
 get_suffix()
 {
     local prod=$1
     local vers=$2
 
-    # If the version has not yet been installed, no suffix needed
+    # Query EUPS for this product/version. If it doesn't exist, we need no suffix.
     if test -z "$(eups list $prod $vers 2>/dev/null | sed 's/^ *//; s/ .*//')"; then
         echo ""
         return
     fi
 
-    # If the version has been installed, peel off highest trailing letter and increment it.
-    # Slightly gross: the letter before "a" is the backtick.
+    # Escape dots in the version string so they are treated as literal dots in Regex
     versMatch=${vers//\./\\.}
+
+    # Ask EUPS for all installed versions starting with this version string.
+    # We strip spaces and the base version string to leave only the trailing suffix letters,
+    # sort them, and grab the highest one.
     have=$(eups list $prod "${vers}*" | sed "s/^ *//; s/ .*$//; s/${versMatch}//" | sort | tail -1)
+
+    # If there was no suffix yet, pretend the current suffix is '`' (the ASCII character right before 'a')
     if test "$have" = ""; then
         have='`'
     fi
 
+    # Increment the letter to the next alphabetical character using `tr`
     next=$(echo "$have" | tr '`-y' 'a-z')
     echo $next
 }
 
+# --- ARGUMENT PARSING ---
 URL="https://github.com/Subaru-PFS"
+
+# Parse flags. 'c' is accepted but seemingly ignored. 'U' takes a URL. 'h' triggers help.
 while getopts 'cU:h' arg; do
     case $arg in
-       U) URL=${OPTARG}
-          echo "-u got $URL"
-          ;;
-
-       ?) echo "unknown argument: $OPTARG"
-          usage
-          ;;
-       :) echo "Option -$OPTARG requires an argument." >&2
-          usage
-          ;;
-       h) usage
-          ;;
-
+        U) URL=${OPTARG}
+           echo "-u got $URL"
+           ;;
+        ?) echo "unknown argument: $OPTARG"
+           usage
+           ;;
+        :) echo "Option -$OPTARG requires an argument." >&2
+           usage
+           ;;
+        h) usage
+           ;;
     esac
 done
+# Shift the parsed flags out of the arguments, leaving only the product list behind
 shift $((OPTIND-1))
 
+# --- EUPS INITIALIZATION ---
+# Source the EUPS environment so commands like `setup`, `unsetup`, and `eupsinstall` work
 . $EUPS_DIR/bin/setups.sh
 
+# Capture the remaining arguments (e.g. "tron_actorcore:1.6.2")
 ICS_INSTALL_PRODUCTS="$@"
 
 #################################
 
+# --- WORKSPACE PREPARATION ---
+# Create an isolated staging directory for the current user
 ICS_BUILD_ROOT=/software/build/$USER
 mkdir -p $ICS_BUILD_ROOT 2>/dev/null
 cd $ICS_BUILD_ROOT
+
+# Safety check: ensure we actually changed directories before potentially running destructive rm commands later
 if test $(pwd) != $ICS_BUILD_ROOT; then
     echo "Could not mkdir or cd into $ICS_BUILD_ROOT. Not safe, so exiting." >&2
     exit 1
 fi
 
-# Clean out any possible crud in the environment
+# Clean out any previously loaded versions of these products from the current shell environment
+# to ensure we build in a clean state.
 for p in $(get_products); do
+    # If the product is ics_config, we need to temporarily backup a crucial environment variable
     if test $p = ics_config; then
         ICS_MHS_ROOT_SAVED=$ICS_MHS_ROOT
     fi
+
     unsetup -f -q $p >/dev/null 2>/dev/null
+
+    # Restore the environment variable after unsetup runs
     if test $p = ics_config; then
         ICS_MHS_ROOT=$ICS_MHS_ROOT_SAVED
     fi
 done
 
-# Install the requested products. We install a full, perhaps tagged, version in the eups
-# product tree, 
-#
+# --- MAIN INSTALLATION LOOP ---
 for p in $ICS_INSTALL_PRODUCTS; do
     prod=$(get_product $p)
     gitVers=$(get_version $p)
     suffix=$(get_suffix $prod $gitVers)
     eupsVers=${gitVers}${suffix}
+
     echo
     echo "######## installing version ${gitVers}/${eupsVers} of $prod..."
 
     cd $ICS_BUILD_ROOT
+
+    # If a leftover staging directory exists from a previous failed run, delete it
     if test -d ${prod}; then
         REMOVE=$ICS_BUILD_ROOT/${prod}
         echo REMOVING $REMOVE
         rm -rf $REMOVE || (echo "FAILED to remove ${REMOVE}: exiting" >&2 && exit 1)
     fi
-    
+
+    # Clone the requested branch/tag from GitHub, including all submodules
     git clone --recursive -b $gitVers ${URL}/${prod}.git
     if test $? -gt 0; then
         echo
         echo "pfsinstall: check your access and git credentials for ${URL}/${prod}.git" >&2
         exit 2
     fi
+
+    # Run the build/install steps inside a subshell `(...)` to avoid permanently changing the outer script's working directory
     ( cd $prod;
-      # Bootstrap: 
+
+      # Special Bootstrap step: If this is ics_config, it needs to know where the MHS root is located.
+      # We inject the environment variable directly into its EUPS table template.
       if test "$prod" = "ics_config"; then
           if test -z "$ICS_MHS_ROOT"; then
               echo ICS_MHS_ROOT cannot be empty when installing ics_config >&2
               export
               exit 2
           fi
+          # Replace the literal string %(ICS_ROOT) with the actual path
           sed "s;%(ICS_ROOT);$ICS_MHS_ROOT;g" < ups/ics_config.table-in > ups/ics_config.table
       fi
 
-      # Explicitly -keep already installed versions. Since
-      # we unset everything which we install before starting, this
-      # means that we honor all the product:versions this script has
-      # already installed
+      # Setup the product from the current local directory (`.`)
+      # -k keeps currently loaded products in the environment so dependencies resolve correctly
       setup -v -k -r .
 
+      # Verify that what we checked out is a strict Git tag (not just a branch or a commit hash)
       gitTag=$(get_git_version)
       if test $gitTag != $gitVers; then
           echo "   requested version $gitVers is not a tag. Bailing out." >&2
           exit 3
       fi
-      
+
+      # Run the custom EUPS installation command, passing any letter suffix we calculated earlier
       eupsinstall VERSION_SUFFIX="$suffix"
+
+      # After installation, locate exactly where EUPS just placed the built files and jump in
       ( cd $(eups list -d $prod ${eupsVers});
+
+        # Link the generic python folder to lib/python
         ln -s lib/python python
-        # special case for ics-like actors (fps, iic..etc) to add the correct symlink
+
+        # Special case for "Actor" components in the PFS software stack
+        # This navigates into python/ and creates a root-level symlink for the actor code
         (
           cd python || { echo "python/ not found"; exit 1; }
+
+          # Use compgen to reliably find folders matching the glob 'ics/*Actor'
           set -- $(compgen -G 'ics/*Actor')
           if [ -z "$1" ]; then
             echo "no actor found, not creating symlink"
           else
             filepath=$1
-            actorPath=${filepath##*/}
-            ln -s "$filepath" "$actorPath"
+            actorPath=${filepath##*/} # Strip 'ics/' prefix
+            ln -s "$filepath" "$actorPath" # Symlink: e.g. `fpsActor -> ics/fpsActor`
           fi
         )
       )
     )
 
-    # Finally, set up the version we just installed.
-    setup -v -k $prof $eupsVers
+    # Finally, set up the version we just installed so subsequent products in the list can build against it.
+    # Note: Corrected '$prof' typo to '$prod' here.
+    setup -v -k $prod $eupsVers
 
-    # clean up staging directory.
+    # Clean up the local staging directory we cloned from GitHub
     REMOVE=$ICS_BUILD_ROOT/${prod}
     echo REMOVING $REMOVE
     rm -rf $REMOVE
